@@ -6,6 +6,7 @@ export class User {
   NewPassword: string | undefined;
   CognitoId: string | undefined;
   IsAdmin: number | undefined;
+  UID: string | undefined;
 }
 
 export class UserAuthResponse {

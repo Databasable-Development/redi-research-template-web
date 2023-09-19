@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {environment} from '../../environments/environment';
 import {ResetPassCode, ResetPassword, User, UserAuthResponse} from '../models/user';
+import {ImportData} from '../models/importdata';
 
 @Injectable({
   providedIn: 'root'
@@ -37,5 +38,15 @@ export class ApiService {
 
   resetPassCode(req: ResetPassCode) {
     return this.http.post(`${environment.url}/user/passresetcode`, req);
+  }
+
+  updateUser(req: User) {
+    const jwt = localStorage['token'];
+    return this.http.put(`${environment.url}/user/${req.CognitoId}`, req, {headers: {Authorization: `Bearer ${jwt}`}});
+  }
+
+  importData(data: ImportData[]) {
+    const jwt = localStorage['token'];
+    return this.http.post(`${environment.url}/import`, data, {headers: {Authorization: `Bearer ${jwt}`}});
   }
 }

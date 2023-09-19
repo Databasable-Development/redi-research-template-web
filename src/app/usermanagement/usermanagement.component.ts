@@ -70,6 +70,9 @@ export class UsermanagementComponent implements OnInit, OnDestroy {
             context: {
                 parentComponent: this
             },
+            suppressRowClickSelection: true,
+            enableCellTextSelection: true,
+            ensureDomOrder: true,
             overlayNoRowsTemplate: `<span class="ag-overlay-loading-center">No rows to show</span>`,
             onSelectionChanged(event: SelectionChangedEvent) {
                 const selectedData = self.gridOptions.api?.getSelectedRows() as User[];
@@ -81,35 +84,50 @@ export class UsermanagementComponent implements OnInit, OnDestroy {
             this.api.getUsers()
                 .subscribe(users => {
                     this.gridOptions.api?.setRowData(users);
+                    this.gridOptions.api?.sizeColumnsToFit()
                 }, err => {
                     alert(err.error);
                 })
         };
 
+        this.gridOptions.onCellEditingStopped = (params) => {
+            if (params.column.getColId() === 'CognitoId' || params.column.getColId() === 'Email') {
+                alert('You cannot edit this column');
+                return
+            }
+            const data = params.data;
+            this.api.updateUser(data)
+                .subscribe(() => {
+
+                }, err => {
+                    alert(err);
+                })
+        }
+
         this.gridOptions.columnDefs = [
             {
                 headerName: 'First Name',
                 field: 'FirstName',
-                editable: false,
+                editable: true,
                 filter: 'agTextColumnFilter',
                 checkboxSelection: true,
             },
             {
                 headerName: 'Last Name',
                 field: 'LastName',
-                editable: false,
+                editable: true,
                 filter: 'agTextColumnFilter',
             },
             {
                 headerName: 'Email',
-                field: 'LastName',
-                editable: false,
+                field: 'Email',
+                editable: true,
                 filter: 'agTextColumnFilter',
             },
             {
                 headerName: 'Is Admin',
                 field: 'IsAdmin',
-                editable: false,
+                editable: true,
                 filter: 'agTextColumnFilter',
                 valueFormatter: (params: any) => {
                     return params.value ? 'Yes' : 'No';
@@ -122,6 +140,12 @@ export class UsermanagementComponent implements OnInit, OnDestroy {
                 valueFormatter: (params: any) => {
                     return params.value ? new Date(params.value * 1000).toLocaleDateString() : '';
                 }
+            },
+            {
+                headerName: 'CognitoId',
+                field: 'CognitoId',
+                editable: true,
+                filter: 'agTextColumnFilter',
             },
         ]
     }

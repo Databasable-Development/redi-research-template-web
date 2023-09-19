@@ -1,6 +1,8 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {GridOptions} from 'ag-grid-community';
 import {ImportData} from '../models/importdata';
+import {ApiService} from '../services/api.service';
+import {User} from '../models/user';
 
 @Component({
     selector: 'app-dataimport',
@@ -9,15 +11,27 @@ import {ImportData} from '../models/importdata';
 })
 export class DataimportComponent implements OnInit, OnDestroy {
     isAdmin = true;
+    loading = false;
     gridOptions: GridOptions;
     importRows = new Array<ImportData>();
+    users = new Array<User>;
+    gridReady = false;
 
-    constructor() {
+    constructor(private api: ApiService) {
         this.gridOptions = {};
+        this.api.getUsers()
+            .subscribe(users => {
+                this.users = users;
+                this.setGrid();
+                this.gridReady = true;
+            });
+
+        setTimeout(() => {
+
+        }, 2000)
     }
 
     ngOnInit(): void {
-        this.setGrid();
     }
 
     ngOnDestroy(): void {
@@ -53,7 +67,6 @@ export class DataimportComponent implements OnInit, OnDestroy {
 
 
     onImportChange(e: any) {
-        debugger;
         this.gridOptions.api?.setRowData([]);
         const file = e.target.files[0];
         const reader = new FileReader();
@@ -75,10 +88,29 @@ export class DataimportComponent implements OnInit, OnDestroy {
                 // @ts-ignore
                 tmp.Researcher = r['Researcher'];
 
+                const keys = Object.keys(r);
+                for (const k of keys) {
+                    // @ts-ignore
+                    tmp[k] = r[k];
+                }
+
                 this.importRows.push(tmp);
                 this.gridOptions.api?.applyTransaction({add: [tmp]});
             }
         };
+    }
+
+    import() {
+        this.loading = true;
+        this.api.importData(this.importRows)
+            .subscribe(() => {
+                this.loading = false;
+                this.gridOptions.api?.setRowData([]);
+                this.importRows = [];
+            }, err => {
+                alert(err.error);
+                this.loading = false;
+            })
     }
 
     setGrid() {
@@ -96,6 +128,7 @@ export class DataimportComponent implements OnInit, OnDestroy {
             this.gridOptions.api?.setRowData([]);
         };
 
+        const values = self.users.map(u => u.FirstName + ' ' + u.LastName)
         this.gridOptions.columnDefs = [
             {
                 headerName: 'CompanyID',
@@ -118,8 +151,44 @@ export class DataimportComponent implements OnInit, OnDestroy {
             {
                 headerName: 'Researcher',
                 field: 'Researcher',
-                editable: false,
-                filter: 'agTextColumnFilter',
+                editable: true,
+                cellEditor: 'agSelectCellEditor',
+                cellRenderer: function (data: any) {
+                   try {
+                       const row = data.data as ImportData;
+                       const user = self.users.find(u => u.CognitoId === row.Researcher);
+                       return `${user?.FirstName} ${user?.LastName}`;
+                   } catch (err){
+                       console.log(err);
+                   }
+
+                   return ``
+                },
+
+                valueSetter: function(params) {
+                    if (params && params.newValue.length > 0) {
+                        params.data.Researcher = self.users.find(o => {
+                            const name = o.FirstName + ' ' + o.LastName;
+                            return name === params.newValue;
+                        })?.CognitoId;
+                    }
+                    return true;
+                },
+
+                valueGetter: function(params) {
+                    try {
+                        const user = self.users.find(refData => refData.CognitoId == params.data.Researcher);
+                        return `${user?.FirstName} ${user?.LastName}`;
+                    } catch (err) {
+                        console.log(err);
+                    }
+
+                    return ``;
+                },
+                cellEditorParams: {
+                    values: values,
+                    valueListGap: 0,
+                }
             },
         ];
     }

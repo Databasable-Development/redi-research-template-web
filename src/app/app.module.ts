@@ -50,7 +50,7 @@ import { UsermanagementComponent } from './usermanagement/usermanagement.compone
     MatSlideToggleModule,
     MatSelectModule,
     MatOptionModule,
-    MatTabsModule
+    MatTabsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
