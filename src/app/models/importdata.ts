@@ -22,6 +22,21 @@ export class ImportData {
   public ListingContact?: string;
   public Researcher?: string;
   public LastActive?: string;
+  public LastUpdate?: Date;
+  Sent45?: boolean;
+  Completed45?: boolean;
+  Sent60?: boolean;
+  Completed60?: boolean;
+  Notes?: string;
+  DesignatedContact?: string;
+  Brokers?: string;
+  ContactEmail?: string;
+  ContactPhone?: string;
+  SpecialNotes?: string;
+  WatermarkAuditDate?: Date;
+  CopywriteContent?: string;
+  HasContentCert?: boolean;
+  HasWebCert?: boolean;
 
   constructor() {
 

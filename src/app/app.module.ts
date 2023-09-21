@@ -15,14 +15,20 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatTableModule} from '@angular/material/table';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatSelectModule} from '@angular/material/select';
-import {MatOptionModule} from '@angular/material/core';
+import {MatNativeDateModule, MatOptionModule} from '@angular/material/core';
 import {HttpClientModule} from '@angular/common/http';
-import { ForgotpassComponent } from './forgotpass/forgotpass.component';
-import { SpreadsheetComponent } from './spreadsheet/spreadsheet.component';
+import {ForgotpassComponent} from './forgotpass/forgotpass.component';
+import {SpreadsheetComponent} from './spreadsheet/spreadsheet.component';
 import {AgGridModule} from 'ag-grid-angular';
 import {MatTabsModule} from '@angular/material/tabs';
-import { DataimportComponent } from './dataimport/dataimport.component';
-import { UsermanagementComponent } from './usermanagement/usermanagement.component';
+import {DataimportComponent} from './dataimport/dataimport.component';
+import {UsermanagementComponent} from './usermanagement/usermanagement.component';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {
+  AGGridDatePickerCompponentComponent
+} from './components/aggrid-date-picker-compponent/aggrid-date-picker-compponent.component';
+import {ToastrModule} from 'ngx-toastr';
+import { HistoryComponent } from './history/history.component';
 
 @NgModule({
   declarations: [
@@ -31,7 +37,9 @@ import { UsermanagementComponent } from './usermanagement/usermanagement.compone
     ForgotpassComponent,
     SpreadsheetComponent,
     DataimportComponent,
-    UsermanagementComponent
+    UsermanagementComponent,
+    AGGridDatePickerCompponentComponent,
+    HistoryComponent
   ],
   imports: [
     BrowserModule,
@@ -51,6 +59,9 @@ import { UsermanagementComponent } from './usermanagement/usermanagement.compone
     MatSelectModule,
     MatOptionModule,
     MatTabsModule,
+    MatNativeDateModule,
+    MatDatepickerModule,
+    ToastrModule.forRoot(), // ToastrModule added
   ],
   providers: [],
   bootstrap: [AppComponent]

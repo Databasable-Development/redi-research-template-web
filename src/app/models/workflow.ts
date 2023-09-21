@@ -1,6 +1,7 @@
 export class WorkflowRow {
   CompanyId?: string;
   CompanyName?: string;
+  URL?: string;
   AssignedToId?: string;
   Username?: string;
   Org?: string;

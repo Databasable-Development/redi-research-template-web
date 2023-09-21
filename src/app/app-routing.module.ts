@@ -5,6 +5,7 @@ import {ForgotpassComponent} from './forgotpass/forgotpass.component';
 import {SpreadsheetComponent} from './spreadsheet/spreadsheet.component';
 import {DataimportComponent} from './dataimport/dataimport.component';
 import {UsermanagementComponent} from './usermanagement/usermanagement.component';
+import {HistoryComponent} from './history/history.component';
 
 const routes: Routes = [
   {path: '', redirectTo: '/login', pathMatch: 'full'},
@@ -13,6 +14,7 @@ const routes: Routes = [
   {path: 'spreadsheet', component: SpreadsheetComponent},
   {path: 'dataimport', component: DataimportComponent},
   {path: 'usermanagement', component: UsermanagementComponent},
+  {path: 'history', component: HistoryComponent},
   // Add more routes as needed
 ];
 
