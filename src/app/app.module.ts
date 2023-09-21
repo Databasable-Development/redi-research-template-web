@@ -29,6 +29,8 @@ import {
 } from './components/aggrid-date-picker-compponent/aggrid-date-picker-compponent.component';
 import {ToastrModule} from 'ngx-toastr';
 import { HistoryComponent } from './history/history.component';
+import {MatExpansionModule} from '@angular/material/expansion';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 
 @NgModule({
   declarations: [
@@ -61,7 +63,10 @@ import { HistoryComponent } from './history/history.component';
     MatTabsModule,
     MatNativeDateModule,
     MatDatepickerModule,
-    ToastrModule.forRoot(), // ToastrModule added
+    ToastrModule.forRoot(),
+    MatExpansionModule,
+    MatCheckboxModule,
+    // ToastrModule added
   ],
   providers: [],
   bootstrap: [AppComponent]

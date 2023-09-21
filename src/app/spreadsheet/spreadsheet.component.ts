@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ApiService} from '../services/api.service';
-import {GridOptions} from 'ag-grid-community';
+import {ColDef, ColumnVisibleEvent, GridOptions} from 'ag-grid-community';
 import {WorkflowRow} from '../models/workflow';
 import {User} from '../models/user';
 import {ImportData} from '../models/importdata';
@@ -18,8 +18,10 @@ import {ToastrService} from 'ngx-toastr';
 export class SpreadsheetComponent implements OnInit, OnDestroy {
   users = new Array<User>();
   gridOptions: GridOptions;
-  isAdmin = (+localStorage['admin'] === 1);
+  isAdmin = localStorage['admin'] == "true";
+  user = localStorage['user'];
   gridReady = false;
+  panelOpenState = false;
   workflowItems = new Array<WorkflowRow>();
   importItems = new Array<ImportData>();
   searchTxt = '';
@@ -29,6 +31,7 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    debugger;
     forkJoin([
       this.api.getUsers(),
       this.api.getWorkflow()
@@ -38,6 +41,9 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         this.workflowItems = [];
         this.importItems = workflow;
         this.importItems.forEach(item => {
+          if (!this.isAdmin && item.Researcher !== this.user) {
+            return;
+          }
           const tmp = new WorkflowRow();
           tmp.CompanyId = item.CompanyID;
           tmp.CompanyName = item.Company;
@@ -77,6 +83,14 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
     this.gridOptions.api?.setQuickFilter(this.searchTxt);
   }
 
+  getColdefs(): ColDef[] {
+    return this.gridOptions.columnDefs as ColDef[];
+  }
+
+  refreshColVisibility(col: ColDef, visibility: boolean | undefined) {
+    this.gridOptions.columnApi?.setColumnVisible(col.field as string, visibility!);
+  }
+
   private async setGrid() {
     this.gridOptions = {
       rowSelection: 'single',
@@ -87,6 +101,15 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
       overlayNoRowsTemplate: `<span class="ag-overlay-loading-center">No rows to show</span>`,
     };
 
+    this.gridOptions.onColumnVisible = async (event: ColumnVisibleEvent) => {
+      debugger;
+      const col = event.column?.getColId();
+      const coldefs = this.getColdefs();
+      const coldef = coldefs.find(o => o.field === col);
+      if (coldef) {
+        coldef.hide = !event.visible;
+      }
+    }
     this.gridOptions.onGridReady = async () => {
       this.gridOptions.api?.setRowData(this.workflowItems);
     };
@@ -172,12 +195,16 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         headerName: 'Company Id',
         field: 'CompanyId',
         editable: this.isAdmin,
+        resizable: true,
         filter: 'agTextColumnFilter',
+        hide: false
       },
       {
         headerName: 'Link',
         field: 'URL',
         editable: false,
+        resizable: true,
+        hide: false,
         filter: 'agTextColumnFilter',
         cellRenderer: (params: any) => {
           return `<a href="${params.data.URL}" target="_blank">Link</a>`
@@ -187,13 +214,17 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         headerName: 'Company Name',
         field: 'CompanyName',
         editable: this.isAdmin,
+        resizable: true,
+        hide: false,
         filter: 'agTextColumnFilter',
       },
       {
         headerName: 'Researcher',
         field: 'Username',
         editable: this.isAdmin,
-        getQuickFilterText: function(params: any) {
+        resizable: true,
+        hide: false,
+        getQuickFilterText: function (params: any) {
           const row = params.data as WorkflowRow;
           const user = self.users.find(u => u.CognitoId === row.AssignedToId);
           return `${user?.FirstName} ${user?.LastName}`;
@@ -204,14 +235,14 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
             const row = data.data as WorkflowRow;
             const user = self.users.find(u => u.CognitoId === row.AssignedToId);
             return `${user?.FirstName} ${user?.LastName}`;
-          } catch (err){
+          } catch (err) {
             console.log(err);
           }
 
           return ``
         },
 
-        valueSetter: function(params) {
+        valueSetter: function (params) {
           if (params && params.newValue.length > 0) {
             params.data.AssignedToId = self.users.find(o => {
               const name = o.FirstName + ' ' + o.LastName;
@@ -221,7 +252,7 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
           return true;
         },
 
-        valueGetter: function(params) {
+        valueGetter: function (params) {
           try {
             const user = self.users.find(refData => refData.CognitoId == params.data.Researcher);
             return `${user?.FirstName} ${user?.LastName}`;
@@ -240,17 +271,23 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         headerName: 'Organization',
         field: 'Org',
         editable: this.isAdmin,
+        resizable: true,
+        hide: false,
         filter: 'agTextColumnFilter',
       },
       {
         headerName: 'Active Listings',
         field: 'ActiveListings',
         editable: this.isAdmin,
+        resizable: true,
+        hide: false,
         filter: 'agNumberColumnFilter',
       },
       {
         headerName: 'Date of Last Update',
         field: 'LastUpdate',
+        resizable: true,
+        hide: false,
         editable: this.isAdmin,
         filter: 'agDateColumnFilter',
         cellRenderer: AGGridDatePickerCompponentComponent,
@@ -260,6 +297,8 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         headerName: '45 Day Target',
         field: 'Day45Target',
         editable: false,
+        resizable: true,
+        hide: false,
         filter: 'agDateColumnFilter',
         cellRenderer: (params: any) => {
           const row = params.data as WorkflowRow;
@@ -274,16 +313,22 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         headerName: 'Sent 45 Day',
         field: 'Sent45',
         editable: true,
+        resizable: true,
+        hide: false,
       },
       {
         headerName: 'Completed 45 Day',
         field: 'Completed45',
         editable: true,
+        resizable: true,
+        hide: false,
       },
       {
         headerName: '60 Day Target',
         field: 'Day60Target',
         editable: false,
+        resizable: true,
+        hide: false,
         filter: 'agTextColumnFilter',
         cellRenderer: (params: any) => {
           const row = params.data as WorkflowRow;
@@ -298,54 +343,70 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         headerName: 'Sent 60 Day',
         field: 'Sent60',
         editable: true,
+        resizable: true,
+        hide: false,
         filter: 'agNumberColumnFilter',
       },
       {
         headerName: 'Completed 60 Day',
         field: 'Completed60',
         editable: true,
+        hide: false,
         filter: 'agNumberColumnFilter',
       },
       {
         headerName: 'Updating Notes',
         field: 'Notes',
         editable: true,
+        resizable: true,
+        hide: false,
         filter: 'agTextColumnFilter',
       },
       {
         headerName: 'Broker(s)',
         field: 'Brokers',
         editable: true,
+        resizable: true,
+        hide: false,
         filter: 'agTextColumnFilter',
       },
       {
         headerName: 'Designated Contact',
         field: 'DesignatedContact',
         editable: true,
+        hide: false,
         filter: 'agTextColumnFilter',
       },
       {
         headerName: 'Contact Email',
         field: 'ContactEmail',
         editable: true,
+        resizable: true,
+        hide: false,
         filter: 'agTextColumnFilter',
       },
       {
         headerName: 'Contact Phone',
         field: 'ContactPhone',
         editable: true,
+        resizable: true,
+        hide: false,
         filter: 'agTextColumnFilter',
       },
       {
         headerName: 'Special Notes',
         field: 'SpecialNotes',
         editable: true,
+        resizable: true,
+        hide: false,
         filter: 'agTextColumnFilter',
       },
       {
         headerName: 'Watermark Audit Date',
         field: 'WatermarkAuditDate',
         editable: true,
+        resizable: true,
+        hide: false,
         cellRenderer: AGGridDatePickerCompponentComponent,
         cellEditor: AGGridDatePickerCompponentComponent,
       },
@@ -353,18 +414,24 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         headerName: 'Copywrite Content',
         field: 'CopywriteContent',
         editable: true,
+        hide: false,
+        resizable: true,
         filter: 'agTextColumnFilter',
       },
       {
         headerName: 'Has Content Cert',
         field: 'HasContentCert',
         editable: true,
+        resizable: true,
+        hide: false,
         filter: 'agTextColumnFilter',
       },
       {
         headerName: 'Has Web Cert',
         field: 'HasWebCert',
         editable: true,
+        resizable: true,
+        hide: false,
         filter: 'agTextColumnFilter',
       }
     ];

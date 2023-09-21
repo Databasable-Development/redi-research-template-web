@@ -9,10 +9,26 @@
     <mat-label>Search</mat-label>
     <input matInput [(ngModel)]="searchTxt" (ngModelChange)="search()">
   </mat-form-field>
+  <mat-accordion>
+    <mat-expansion-panel hideToggle>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Column Visibility
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <ul>
+        <li *ngFor="let subtask of getColdefs()">
+          <mat-checkbox [(ngModel)]="!subtask.hide" (ngModelChange)="refreshColVisibility(subtask, subtask.hide)">
+            {{subtask.headerName}}
+          </mat-checkbox>
+        </li>
+      </ul>
+    </mat-expansion-panel>
+  </mat-accordion>
 </div>
 <ag-grid-angular
   *ngIf="gridReady"
-  style="width: 100%; height: 100%"
+  style="width: 100%; height: 80vh"
   class="ag-theme-alpine"
   [gridOptions]="gridOptions"
   [rowData]="gridOptions.rowData"
