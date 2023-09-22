@@ -95,27 +95,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
     // @ts-ignore
     this.gridOptions.columnDefs = [
       {
-        headerName: 'Company Id',
-        field: 'CompanyId',
-        editable: false,
-        filter: 'agTextColumnFilter',
-      },
-      {
-        headerName: 'Link',
-        field: 'URL',
-        editable: false,
-        filter: 'agTextColumnFilter',
-        cellRenderer: (params: any) => {
-          return `<a href="${params.data.URL}" target="_blank">Link</a>`
-        },
-      },
-      {
-        headerName: 'Company Name',
-        field: 'CompanyName',
-        editable: false,
-        filter: 'agTextColumnFilter',
-      },
-      {
         headerName: 'Researcher',
         field: 'Username',
         editable: false,
@@ -161,6 +140,27 @@ export class HistoryComponent implements OnInit, OnDestroy {
           values: values,
           valueListGap: 0,
         }
+      },
+      {
+        headerName: 'Company Id',
+        field: 'CompanyId',
+        editable: false,
+        filter: 'agTextColumnFilter',
+      },
+      {
+        headerName: 'Link',
+        field: 'URL',
+        editable: false,
+        filter: 'agTextColumnFilter',
+        cellRenderer: (params: any) => {
+          return `<a href="${params.data.URL}" target="_blank">Link</a>`
+        },
+      },
+      {
+        headerName: 'Company Name',
+        field: 'CompanyName',
+        editable: false,
+        filter: 'agTextColumnFilter',
       },
       {
         headerName: 'Organization',
@@ -235,6 +235,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
       {
         headerName: 'Updating Notes',
         field: 'Notes',
+        tooltipField: 'Notes',
         editable: false,
         filter: 'agTextColumnFilter',
       },
@@ -265,6 +266,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
       {
         headerName: 'Special Notes',
         field: 'SpecialNotes',
+        tooltipField: 'SpecialNotes',
         editable: false,
         filter: 'agTextColumnFilter',
       },

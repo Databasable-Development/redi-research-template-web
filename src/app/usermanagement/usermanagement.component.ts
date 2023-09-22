@@ -51,12 +51,10 @@ export class UsermanagementComponent implements OnInit, OnDestroy {
         this.api.createUser(this.newUser)
             .subscribe((resp: UserAuthResponse) => {
                 this.newUser.CognitoId = resp.UserId;
-                debugger;
                 this.gridOptions.api?.applyTransaction({add: [this.newUser]});
                 this.loading = false;
                 this.newUser = new User();
             }, err => {
-                debugger;
                 alert(err.error);
                 this.loading = false;
             })

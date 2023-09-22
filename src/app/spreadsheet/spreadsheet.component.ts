@@ -31,7 +31,6 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    debugger;
     forkJoin([
       this.api.getUsers(),
       this.api.getWorkflow()
@@ -102,7 +101,6 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
     };
 
     this.gridOptions.onColumnVisible = async (event: ColumnVisibleEvent) => {
-      debugger;
       const col = event.column?.getColId();
       const coldefs = this.getColdefs();
       const coldef = coldefs.find(o => o.field === col);
@@ -115,7 +113,6 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
     };
 
     this.gridOptions.onCellEditingStopped = async (params: any) => {
-      debugger;
       const tmp = params.data as WorkflowRow;
       const item = this.importItems.find(o => o.CompanyID === tmp.CompanyId);
       const col = params.column.colId;
@@ -165,14 +162,12 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
               item.Completed45 = false;
               item.Completed60 = false;
               item.Notes = '';
-              item.SpecialNotes = '';
               tmp.LastUpdate = new Date();
               tmp.Sent60 = false;
               tmp.Sent45 = false;
               tmp.Completed45 = false;
               tmp.Completed60 = false;
               tmp.Notes = '';
-              tmp.SpecialNotes = '';
               forkJoin([
                 this.api.saveWorkflow(item),
                 this.api.archiveWorkflow(copy)
@@ -191,33 +186,6 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
     const values = this.users.map(u => u.FirstName + ' ' + u.LastName)
     // @ts-ignore
     this.gridOptions.columnDefs = [
-      {
-        headerName: 'Company Id',
-        field: 'CompanyId',
-        editable: this.isAdmin,
-        resizable: true,
-        filter: 'agTextColumnFilter',
-        hide: false
-      },
-      {
-        headerName: 'Link',
-        field: 'URL',
-        editable: false,
-        resizable: true,
-        hide: false,
-        filter: 'agTextColumnFilter',
-        cellRenderer: (params: any) => {
-          return `<a href="${params.data.URL}" target="_blank">Link</a>`
-        },
-      },
-      {
-        headerName: 'Company Name',
-        field: 'CompanyName',
-        editable: this.isAdmin,
-        resizable: true,
-        hide: false,
-        filter: 'agTextColumnFilter',
-      },
       {
         headerName: 'Researcher',
         field: 'Username',
@@ -266,6 +234,33 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
           values: values,
           valueListGap: 0,
         }
+      },
+      {
+        headerName: 'Company Id',
+        field: 'CompanyId',
+        editable: this.isAdmin,
+        resizable: true,
+        filter: 'agTextColumnFilter',
+        hide: false
+      },
+      {
+        headerName: 'Link',
+        field: 'URL',
+        editable: false,
+        resizable: true,
+        hide: false,
+        filter: 'agTextColumnFilter',
+        cellRenderer: (params: any) => {
+          return `<a href="${params.data.URL}" target="_blank">Link</a>`
+        },
+      },
+      {
+        headerName: 'Company Name',
+        field: 'CompanyName',
+        editable: this.isAdmin,
+        resizable: true,
+        hide: false,
+        filter: 'agTextColumnFilter',
       },
       {
         headerName: 'Organization',
@@ -357,6 +352,7 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
       {
         headerName: 'Updating Notes',
         field: 'Notes',
+        tooltipField: 'Notes',
         editable: true,
         resizable: true,
         hide: false,
@@ -396,6 +392,7 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
       {
         headerName: 'Special Notes',
         field: 'SpecialNotes',
+        tooltipField: 'SpecialNotes',
         editable: true,
         resizable: true,
         hide: false,
