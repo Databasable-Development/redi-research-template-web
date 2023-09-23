@@ -23,8 +23,13 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
   gridReady = false;
   panelOpenState = false;
   workflowItems = new Array<WorkflowRow>();
+  totals = new WorkflowRow();
   importItems = new Array<ImportData>();
   searchTxt = '';
+  dueIn45 = 0;
+  updatedInLast45 = 0;
+  updatedInLast60 = 0;
+  notUpdatedInLast60 = 0;
 
   constructor(private api: ApiService, private toastr: ToastrService) {
     this.gridOptions = {};
@@ -90,6 +95,56 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
     this.gridOptions.columnApi?.setColumnVisible(col.field as string, visibility!);
   }
 
+  days_between(date1: Date, date2: Date) {
+    const ONE_DAY = 1000 * 60 * 60 * 24;
+    const differenceMs = Math.abs(date1.getTime() - date2.getTime());
+    return Math.round(differenceMs / ONE_DAY);
+
+  }
+
+  private calcExtData() {
+    debugger;
+    this.dueIn45 = 0;
+    this.updatedInLast45 = 0;
+    this.updatedInLast60 = 0;
+    this.notUpdatedInLast60 = 0;
+    const now = new Date();
+    if (this.gridOptions.api?.isAnyFilterPresent()) {
+      this.gridOptions.api?.forEachNodeAfterFilter(o => {
+        const diff = this.days_between(now, new Date(o.data.LastUpdate));
+        if (diff <= 45) {
+          this.dueIn45++;
+          this.updatedInLast45++;
+        }
+        if (diff <= 60) {
+          this.updatedInLast60++;
+        }
+        if (diff > 60) {
+          this.notUpdatedInLast60++;
+        }
+      });
+    } else {
+      this.importItems.forEach(o => {
+        if (!o.LastUpdate) {
+          o.LastUpdate = new Date();
+        } else {
+          o.LastUpdate = new Date(o.LastUpdate)
+        }
+        const diff = this.days_between(now, o.LastUpdate);
+        if (diff <= 45) {
+          this.dueIn45++;
+          this.updatedInLast45++;
+        }
+        if (diff <= 60) {
+          this.updatedInLast60++;
+        }
+        if (diff > 60) {
+          this.notUpdatedInLast60++;
+        }
+      })
+    }
+  }
+
   private async setGrid() {
     this.gridOptions = {
       rowSelection: 'single',
@@ -100,6 +155,13 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
       overlayNoRowsTemplate: `<span class="ag-overlay-loading-center">No rows to show</span>`,
     };
 
+    this.gridOptions.onFilterChanged = async () => {
+      this.totals.ActiveListings = 0;
+      this.gridOptions.api?.forEachNodeAfterFilter(o => {this.totals.ActiveListings! += o.data.ActiveListings!})
+      this.gridOptions.api?.setPinnedTopRowData([this.totals]);
+      this.calcExtData();
+    }
+
     this.gridOptions.onColumnVisible = async (event: ColumnVisibleEvent) => {
       const col = event.column?.getColId();
       const coldefs = this.getColdefs();
@@ -109,7 +171,11 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
       }
     }
     this.gridOptions.onGridReady = async () => {
+      this.calcExtData();
       this.gridOptions.api?.setRowData(this.workflowItems);
+      this.totals.ActiveListings = 0;
+      this.workflowItems.forEach(o => {this.totals.ActiveListings! += o.ActiveListings!});
+      this.gridOptions.api?.setPinnedTopRowData([this.totals]);
     };
 
     this.gridOptions.onCellEditingStopped = async (params: any) => {
@@ -202,7 +268,9 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
           try {
             const row = data.data as WorkflowRow;
             const user = self.users.find(u => u.CognitoId === row.AssignedToId);
-            return `${user?.FirstName} ${user?.LastName}`;
+            if (user) {
+              return `${user?.FirstName} ${user?.LastName}`;
+            }
           } catch (err) {
             console.log(err);
           }

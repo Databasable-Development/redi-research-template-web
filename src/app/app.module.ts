@@ -31,6 +31,8 @@ import {ToastrModule} from 'ngx-toastr';
 import { HistoryComponent } from './history/history.component';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatGridListModule} from '@angular/material/grid-list';
+import {MatListModule} from '@angular/material/list';
 
 @NgModule({
   declarations: [
@@ -66,6 +68,8 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     ToastrModule.forRoot(),
     MatExpansionModule,
     MatCheckboxModule,
+    MatGridListModule,
+    MatListModule,
     // ToastrModule added
   ],
   providers: [],
