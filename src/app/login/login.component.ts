@@ -2,8 +2,6 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ApiService} from '../services/api.service';
 import {Router} from '@angular/router';
 import {UserAuthResponse} from '../models/user';
-import {load} from '@angular-devkit/build-angular/src/utils/server-rendering/esm-in-memory-file-loader';
-
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -40,6 +38,4 @@ export class LoginComponent implements OnInit, OnDestroy{
         this.loginValid = false;
       })
   }
-
-  protected readonly load = load;
 }

@@ -103,7 +103,6 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
   }
 
   private calcExtData() {
-    debugger;
     this.dueIn45 = 0;
     this.updatedInLast45 = 0;
     this.updatedInLast60 = 0;
@@ -111,15 +110,19 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
     const now = new Date();
     if (this.gridOptions.api?.isAnyFilterPresent()) {
       this.gridOptions.api?.forEachNodeAfterFilter(o => {
-        const diff = this.days_between(now, new Date(o.data.LastUpdate));
-        if (diff <= 45) {
+        const diff60 = this.days_between(now, new Date(o.data.Day60Target));
+        const lastUpdate = this.days_between(now, new Date(o.data.LastUpdate));
+        if (diff60 <= 45) {
           this.dueIn45++;
+        }
+
+        if (lastUpdate <= 45) {
           this.updatedInLast45++;
         }
-        if (diff <= 60) {
+        if (lastUpdate <= 60) {
           this.updatedInLast60++;
         }
-        if (diff > 60) {
+        if (lastUpdate > 60) {
           this.notUpdatedInLast60++;
         }
       });
@@ -130,15 +133,21 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         } else {
           o.LastUpdate = new Date(o.LastUpdate)
         }
-        const diff = this.days_between(now, o.LastUpdate);
-        if (diff <= 45) {
+
+        const target60 = this.addDays(o.LastUpdate, 60);
+        const diff60 = this.days_between(now, new Date(target60));
+        const lastUpdate = this.days_between(now, new Date(o.LastUpdate));
+        if (diff60 <= 45) {
           this.dueIn45++;
           this.updatedInLast45++;
         }
-        if (diff <= 60) {
+        if (lastUpdate <= 45) {
+          this.updatedInLast45++;
+        }
+        if (lastUpdate <= 60) {
           this.updatedInLast60++;
         }
-        if (diff > 60) {
+        if (lastUpdate > 60) {
           this.notUpdatedInLast60++;
         }
       })
@@ -157,6 +166,7 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
 
     this.gridOptions.onFilterChanged = async () => {
       this.totals.ActiveListings = 0;
+      this.totals.CompanyId = 'Totals'
       this.gridOptions.api?.forEachNodeAfterFilter(o => {this.totals.ActiveListings! += o.data.ActiveListings!})
       this.gridOptions.api?.setPinnedTopRowData([this.totals]);
       this.calcExtData();
@@ -171,18 +181,19 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
       }
     }
 
-    // this.gridOptions.getRowStyle = (params: any) => {
-    //   if (params.node.rowIndex === 0) {
-    //     return { background: 'red' };
-    //   }
-    //
-    //   return { background: '' };
-    // }
+    this.gridOptions.getRowStyle = (params: any) => {
+      if (params.node.rowIndex === 0 && params.data.CompanyId === 'Totals') {
+        return { background: '#add8e6' };
+      }
+
+      return { background: '' };
+    }
 
     this.gridOptions.onGridReady = async () => {
       this.calcExtData();
       this.gridOptions.api?.setRowData(this.workflowItems);
       this.totals.ActiveListings = 0;
+      this.totals.CompanyId = 'Totals'
       this.workflowItems.forEach(o => {this.totals.ActiveListings! += o.ActiveListings!});
       this.gridOptions.api?.setPinnedTopRowData([this.totals]);
     };
@@ -509,5 +520,11 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         filter: 'agTextColumnFilter',
       }
     ];
+  }
+
+  addDays(date: Date, days: number) {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
   }
 }
