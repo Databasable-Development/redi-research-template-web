@@ -170,6 +170,15 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         coldef.hide = !event.visible;
       }
     }
+
+    // this.gridOptions.getRowStyle = (params: any) => {
+    //   if (params.node.rowIndex === 0) {
+    //     return { background: 'red' };
+    //   }
+    //
+    //   return { background: '' };
+    // }
+
     this.gridOptions.onGridReady = async () => {
       this.calcExtData();
       this.gridOptions.api?.setRowData(this.workflowItems);
