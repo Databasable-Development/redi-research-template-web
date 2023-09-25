@@ -130,6 +130,7 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
       this.importItems.forEach(o => {
         if (!o.LastUpdate) {
           o.LastUpdate = new Date();
+          this.api.saveWorkflow(o).subscribe(() => {});
         } else {
           o.LastUpdate = new Date(o.LastUpdate)
         }
