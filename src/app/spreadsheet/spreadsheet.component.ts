@@ -340,7 +340,12 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         hide: false,
         filter: 'agTextColumnFilter',
         cellRenderer: (params: any) => {
-          return `<a href="${params.data.URL}" target="_blank">Link</a>`
+          if (params.data.URL) {
+            return `<a href="${params.data.URL}" target="_blank">Link</a>`
+          } else {
+            const row = params.data as WorkflowRow;
+            return `<a href="https://rdma.catylist.com/company/${row.CompanyId}" target="_blank">Link</a>`
+          }
         },
       },
       {

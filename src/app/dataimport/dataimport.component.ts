@@ -103,7 +103,6 @@ export class DataimportComponent implements OnInit, OnDestroy {
   }
 
   import() {
-    debugger;
     if (this.manualRow.CompanyID) {
       this.manualRow.ActiveListings = +this.manualRow?.ActiveListings!.toString()
       this.importRows.push(this.manualRow);
