@@ -544,7 +544,7 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
           const item = this.importItems.find(o => o.CompanyID === wf.CompanyId);
           const span = document.createElement('span');
           const deleteBtn = document.createElement('button');
-          deleteBtn.innerHTML = 'Delete';
+          deleteBtn.innerHTML = 'Archive';
           deleteBtn.addEventListener('click', () => {
             this.api.deleteWorkflow(item!).subscribe(() => {
               let index = this.importItems.findIndex(o => o.CompanyID === item?.CompanyID);
