@@ -130,7 +130,8 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
       this.importItems.forEach(o => {
         if (!o.LastUpdate) {
           o.LastUpdate = new Date();
-          this.api.saveWorkflow(o).subscribe(() => {});
+          this.api.saveWorkflow(o).subscribe(() => {
+          });
         } else {
           o.LastUpdate = new Date(o.LastUpdate)
         }
@@ -168,7 +169,9 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
     this.gridOptions.onFilterChanged = async () => {
       this.totals.ActiveListings = 0;
       this.totals.CompanyId = 'Totals'
-      this.gridOptions.api?.forEachNodeAfterFilter(o => {this.totals.ActiveListings! += o.data.ActiveListings!})
+      this.gridOptions.api?.forEachNodeAfterFilter(o => {
+        this.totals.ActiveListings! += o.data.ActiveListings!
+      })
       this.gridOptions.api?.setPinnedTopRowData([this.totals]);
       this.calcExtData();
     }
@@ -184,10 +187,10 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
 
     this.gridOptions.getRowStyle = (params: any) => {
       if (params.node.rowIndex === 0 && params.data.CompanyId === 'Totals') {
-        return { background: '#add8e6' };
+        return {background: '#add8e6'};
       }
 
-      return { background: '' };
+      return {background: ''};
     }
 
     this.gridOptions.onGridReady = async () => {
@@ -195,7 +198,9 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
       this.gridOptions.api?.setRowData(this.workflowItems);
       this.totals.ActiveListings = 0;
       this.totals.CompanyId = 'Totals'
-      this.workflowItems.forEach(o => {this.totals.ActiveListings! += o.ActiveListings!});
+      this.workflowItems.forEach(o => {
+        this.totals.ActiveListings! += o.ActiveListings!
+      });
       this.gridOptions.api?.setPinnedTopRowData([this.totals]);
     };
 
@@ -526,6 +531,36 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         filter: 'agTextColumnFilter',
       }
     ];
+
+    if (this.isAdmin) {
+      this.gridOptions.columnDefs.push({
+        headerName: 'Actions',
+        field: 'HasWebCert',
+        editable: true,
+        resizable: true,
+        hide: false,
+        cellRenderer: (params: any) => {
+          const wf = params.data as WorkflowRow;
+          const item = this.importItems.find(o => o.CompanyID === wf.CompanyId);
+          const span = document.createElement('span');
+          const deleteBtn = document.createElement('button');
+          deleteBtn.innerHTML = 'Delete';
+          deleteBtn.addEventListener('click', () => {
+            this.api.deleteWorkflow(item!).subscribe(() => {
+              let index = this.importItems.findIndex(o => o.CompanyID === item?.CompanyID);
+              this.importItems.splice(index, 1);
+              index = this.workflowItems.findIndex(o => o.CompanyId === wf.CompanyId);
+              this.workflowItems.splice(index, 1);
+
+              this.gridOptions.api?.applyTransaction({remove: [wf]});
+            });
+          });
+
+          span.append(deleteBtn);
+          return span;
+        }
+      })
+    }
   }
 
   addDays(date: Date, days: number) {

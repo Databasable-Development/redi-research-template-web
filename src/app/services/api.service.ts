@@ -3,6 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {environment} from '../../environments/environment';
 import {ResetPassCode, ResetPassword, User, UserAuthResponse} from '../models/user';
 import {ImportData} from '../models/importdata';
+import {WorkflowRow} from '../models/workflow';
 
 @Injectable({
   providedIn: 'root'
@@ -36,6 +37,10 @@ export class ApiService {
     return this.http.get<ImportData[]>(`${environment.url}/workflow`, {headers: {Authorization: `Bearer ${jwt}`}});
   }
 
+  deleteWorkflow(wf: ImportData) {
+    const jwt = localStorage['token'];
+    return this.http.post(`${environment.url}/workflow/delete`, wf, {headers: {Authorization: `Bearer ${jwt}`}});
+  }
   getArchivedWorkflow() {
     const jwt = localStorage['token'];
     return this.http.get<ImportData[]>(`${environment.url}/workflow/archive`, {headers: {Authorization: `Bearer ${jwt}`}});
