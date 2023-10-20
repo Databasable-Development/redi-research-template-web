@@ -3,6 +3,9 @@ import {GridOptions} from 'ag-grid-community';
 import {ImportData} from '../models/importdata';
 import {ApiService} from '../services/api.service';
 import {User} from '../models/user';
+import {
+  AGGridDatePickerCompponentComponent
+} from '../components/aggrid-date-picker-compponent/aggrid-date-picker-compponent.component';
 
 @Component({
   selector: 'app-dataimport',
@@ -67,16 +70,17 @@ export class DataimportComponent implements OnInit, OnDestroy {
     return arr;
   }
 
-
   onImportChange(e: any) {
     this.gridOptions.api?.setRowData([]);
     const file = e.target.files[0];
     const reader = new FileReader();
     reader.readAsText(file);
     reader.onload = () => {
+      debugger;
       this.importRows = [];
       const csvData = reader.result!.toString();
       const rows = this.csvToArray(csvData);
+      debugger;
       for (const r of rows) {
         const tmp = new ImportData();
         // @ts-ignore
@@ -89,6 +93,12 @@ export class DataimportComponent implements OnInit, OnDestroy {
         tmp.ActiveListings = +r['Active Listings'];
         // @ts-ignore
         tmp.Researcher = r['Researcher'];
+        // @ts-ignore
+        tmp.Notes = r['Updating Notes'] as string;
+        // @ts-ignore
+        tmp.SpecialNotes = r['Special Notes'] as string;
+        // @ts-ignore
+        tmp.LastUpdate = new Date(r['Date of Last Update'] as string);
 
         const keys = Object.keys(r);
         for (const k of keys) {
@@ -148,16 +158,42 @@ export class DataimportComponent implements OnInit, OnDestroy {
         filter: 'agTextColumnFilter',
       },
       {
+        headerName: 'Company',
+        field: 'Company',
+        editable: true,
+        filter: 'agTextColumnFilter',
+      },
+      {
         headerName: 'Organization',
         field: 'Organization',
         editable: true,
         filter: 'agTextColumnFilter',
       },
       {
-        headerName: 'ActiveListings',
+        headerName: 'Active Listings',
         field: 'ActiveListings',
         editable: true,
         filter: 'agNumberColumnFilter',
+      },
+      {
+        headerName: 'Updating Notes',
+        field: 'Notes',
+        editable: true,
+        filter: 'agTextColumnFilter',
+      },
+      {
+        headerName: 'Special Notes',
+        field: 'SpecialNotes',
+        editable: true,
+        filter: 'agTextColumnFilter',
+      },
+      {
+        headerName: 'Last Update',
+        field: 'LastUpdate',
+        editable: true,
+        filter: 'agDateColumnFilter',
+        cellRenderer: AGGridDatePickerCompponentComponent,
+        cellEditor: AGGridDatePickerCompponentComponent,
       },
       {
         headerName: 'Researcher',

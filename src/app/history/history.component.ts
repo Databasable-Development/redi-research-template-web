@@ -17,7 +17,8 @@ import {User} from '../models/user';
 export class HistoryComponent implements OnInit, OnDestroy {
   gridOptions: GridOptions;
   users = new Array<User>();
-  isAdmin = (+localStorage['admin'] === 1);
+  user = localStorage['user'];
+  isAdmin = localStorage['admin'] == "true";
   gridReady = false;
   workflowItems = new Array<WorkflowRow>();
   importItems = new Array<ImportData>();
@@ -37,6 +38,9 @@ export class HistoryComponent implements OnInit, OnDestroy {
         this.workflowItems = [];
         this.importItems = workflow;
         this.importItems.forEach(item => {
+          if (!this.isAdmin && item.Researcher !== this.user) {
+            return;
+          }
           const tmp = new WorkflowRow();
           tmp.CompanyId = item.CompanyID;
           tmp.CompanyName = item.Company;

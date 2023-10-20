@@ -1,14 +1,9 @@
-<div *ngIf="isAdmin">
-  <button mat-button routerLink="/spreadsheet">Workflow</button>
-  <button mat-button routerLink="/dataimport">Data Import</button>
-  <button mat-button routerLink="/usermanagement">User Management</button>
-  <button mat-button routerLink="/history">History</button>
-</div>
 <div>
-  <mat-form-field class="example-full-width">
-    <mat-label>Search</mat-label>
-    <input matInput [(ngModel)]="searchTxt" (ngModelChange)="search()">
-  </mat-form-field>
+  <button mat-button routerLink="/spreadsheet">Workflow</button>
+  <button *ngIf="isAdmin" mat-button routerLink="/dataimport">Data Import</button>
+  <button *ngIf="isAdmin" mat-button routerLink="/usermanagement">User Management</button>
+  <button mat-button routerLink="/history">History</button>
+  <input matInput [(ngModel)]="searchTxt" (ngModelChange)="search()">
 </div>
 <ag-grid-angular
   *ngIf="gridReady"

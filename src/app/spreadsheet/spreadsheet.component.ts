@@ -372,7 +372,7 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
       {
         headerName: 'Active Listings',
         field: 'ActiveListings',
-        editable: this.isAdmin,
+        editable: true,
         resizable: true,
         hide: false,
         filter: 'agNumberColumnFilter',
