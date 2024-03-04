@@ -1,8 +1,12 @@
 <div>
+  <b style="padding: 5px">S.A.M. - System Analytics & Metrics</b>
+</div>
+<div>
   <button *ngIf="isAdmin" mat-button routerLink="/spreadsheet">Workflow</button>
   <button *ngIf="isAdmin" mat-button routerLink="/dataimport">Data Import</button>
   <button *ngIf="isAdmin" mat-button routerLink="/usermanagement">User Management</button>
   <button mat-button routerLink="/history">History</button>
+  <button mat-button (click)="reset()">Reset Spreadsheet</button>
   <input matInput [(ngModel)]="searchTxt" (ngModelChange)="search()">
 </div>
 <div>
@@ -32,6 +36,7 @@
         <mat-list-item role="listitem">Companies Updated in Last 45 Days: {{updatedInLast45}}</mat-list-item>
         <mat-list-item role="listitem">Companies Updated in Last 60 Days: {{updatedInLast60}}</mat-list-item>
         <mat-list-item role="listitem">Companies NOT Updated in Last 60 Days: {{notUpdatedInLast60}}</mat-list-item>
+        <mat-list-item role="listitem">Partial Updated: {{notUpdatedInLast60}}</mat-list-item>
       </mat-list>
     </mat-expansion-panel>
   </mat-accordion>

@@ -73,7 +73,7 @@ import {CookieService} from 'ngx-cookie-service';
     MatListModule,
     // ToastrModule added
   ],
-  providers: [],
+  providers: [CookieService],
   bootstrap: [AppComponent]
 })
 export class AppModule {

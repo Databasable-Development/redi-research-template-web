@@ -9,6 +9,7 @@ import {
   AGGridDatePickerCompponentComponent
 } from '../components/aggrid-date-picker-compponent/aggrid-date-picker-compponent.component';
 import {ToastrService} from 'ngx-toastr';
+import {CookieService} from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-spreadsheet',
@@ -30,8 +31,12 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
   updatedInLast45 = 0;
   updatedInLast60 = 0;
   notUpdatedInLast60 = 0;
+  partialUpdatedVisible = 0;
+  initialState: any;
 
-  constructor(private api: ApiService, private toastr: ToastrService) {
+  constructor(private api: ApiService,
+              private toastr: ToastrService,
+              private cookieService: CookieService) {
     this.gridOptions = {};
   }
 
@@ -86,7 +91,16 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
 
   @HostListener('window:beforeunload')
   saveState() {
-    console.log('leaving');
+    const state = this.gridOptions.api?.getFilterModel();
+    const colState = this.gridOptions.columnApi?.getColumnState();
+    if (state) {
+      const tmp = JSON.stringify(state);
+      localStorage.setItem('filterState', tmp);
+    }
+    if (colState) {
+      const tmp = JSON.stringify(colState);
+      localStorage.setItem('columnState', tmp);
+    }
   }
 
   search() {
@@ -113,9 +127,14 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
     this.updatedInLast45 = 0;
     this.updatedInLast60 = 0;
     this.notUpdatedInLast60 = 0;
+    this.partialUpdatedVisible = 0;
     const now = new Date();
     if (this.gridOptions.api?.isAnyFilterPresent()) {
       this.gridOptions.api?.forEachNodeAfterFilter(o => {
+        const wf = o.data as WorkflowRow;
+        if (wf.PartialUpdate) {
+          this.partialUpdatedVisible++;
+        }
         const diff60 = this.days_between(now, new Date(o.data.Day60Target));
         const lastUpdate = this.days_between(now, new Date(o.data.LastUpdate));
         if (diff60 <= 45) {
@@ -166,6 +185,22 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
     }
   }
 
+  reset() {
+    localStorage.removeItem('filterState');
+    localStorage.removeItem('columnState');
+
+    this.gridOptions.api?.setFilterModel(this.initialState);
+    // @ts-ignore
+    this.gridOptions!.onGridReady();
+    const columns = this.gridOptions.columnApi!.getAllColumns();
+    // @ts-ignore
+    for (const c of columns) {
+      this.refreshColVisibility(c.getColDef(), true);
+    }
+
+    window.location.reload();
+  }
+
   private async setGrid() {
     this.gridOptions = {
       rowSelection: 'single',
@@ -184,6 +219,8 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
       })
       this.gridOptions.api?.setPinnedTopRowData([this.totals]);
       this.calcExtData();
+
+      this.saveState();
     }
 
     this.gridOptions.onColumnVisible = async (event: ColumnVisibleEvent) => {
@@ -219,14 +256,34 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
 
     this.gridOptions.onGridReady = async () => {
       this.calcExtData();
-      debugger;
-      this.gridOptions.api?.setRowData(this.workflowItems);
-      this.totals.ActiveListings = 0;
-      this.totals.CompanyId = 'Totals'
+      let index = 1;
       this.workflowItems.forEach(o => {
+        o.id = index;
+        index++;
         this.totals.ActiveListings! += o.ActiveListings!
       });
+
+      this.gridOptions.api?.setRowData(this.workflowItems);
+      this.totals.ActiveListings = 0;
+      this.totals.CompanyId = 'Totals';
+
       this.gridOptions.api?.setPinnedTopRowData([this.totals]);
+
+      const state = localStorage.getItem('filterState');
+      const colState = localStorage.getItem('columnState');
+      if (state) {
+        const savedState = JSON.parse(state)
+        this.initialState = this.gridOptions.api?.getFilterModel();
+        this.gridOptions.api?.setFilterModel(savedState);
+      }
+      if (colState) {
+        const savedState = JSON.parse(colState)
+        for (const col of savedState) {
+          const column = this.gridOptions.columnApi?.getColumn(col.colId);
+          // @ts-ignore
+          this.refreshColVisibility(column?.getColDef(), !col.hide);
+        }
+      }
     };
 
     this.gridOptions.onCellEditingStopped = async (params: any) => {
@@ -305,6 +362,13 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
     const values = this.users.map(u => u.FirstName + ' ' + u.LastName)
     // @ts-ignore
     this.gridOptions.columnDefs = [
+      {
+        headerName: 'Id',
+        field: 'id',
+        resizable: true,
+        filter: 'agNumberColumnFilter',
+        hide: false
+      },
       {
         headerName: 'Researcher',
         field: 'Username',
@@ -489,6 +553,8 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         editable: true,
         resizable: true,
         hide: false,
+        cellEditor: 'agLargeTextCellEditor',
+        cellEditorPopup: true,
         filter: 'agTextColumnFilter',
       },
       {

@@ -76,11 +76,9 @@ export class DataimportComponent implements OnInit, OnDestroy {
     const reader = new FileReader();
     reader.readAsText(file);
     reader.onload = () => {
-      debugger;
       this.importRows = [];
       const csvData = reader.result!.toString();
       const rows = this.csvToArray(csvData);
-      debugger;
       for (const r of rows) {
         const tmp = new ImportData();
         // @ts-ignore
