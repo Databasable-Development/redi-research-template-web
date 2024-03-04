@@ -24,6 +24,7 @@ export class ImportData {
   public LastActive?: string;
   public LastUpdate?: Date;
   Sent45?: boolean;
+  PartialUpdate?: boolean;
   Completed45?: boolean;
   Sent60?: boolean;
   Completed60?: boolean;

@@ -282,7 +282,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
         cellEditor: AGGridDatePickerCompponentComponent,
       },
       {
-        headerName: 'Copywrite Content',
+        headerName: 'Copyright Content',
         field: 'CopywriteContent',
         editable: false,
         filter: 'agTextColumnFilter',

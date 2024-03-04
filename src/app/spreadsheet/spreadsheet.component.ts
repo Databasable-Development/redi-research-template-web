@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 import {ApiService} from '../services/api.service';
 import {ColDef, ColumnVisibleEvent, GridOptions} from 'ag-grid-community';
 import {WorkflowRow} from '../models/workflow';
@@ -58,6 +58,7 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
           tmp.ActiveListings = item.ActiveListings
           tmp.LastUpdate = item.LastUpdate;
           tmp.Sent45 = item.Sent45 ? item.Sent45 : false;
+          tmp.PartialUpdate = item.PartialUpdate ? item.PartialUpdate : false;
           tmp.Sent60 = item.Sent60 ? item.Sent60 : false;
           tmp.Completed45 = item.Completed45 ? item.Completed45 : false;
           tmp.Completed60 = item.Completed60 ? item.Completed60 : false;
@@ -81,6 +82,11 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+  }
+
+  @HostListener('window:beforeunload')
+  saveState() {
+    console.log('leaving');
   }
 
   search() {
@@ -128,6 +134,10 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
       });
     } else {
       this.importItems.forEach(o => {
+        if (!this.isAdmin && o.Researcher !== this.user) {
+          return;
+        }
+
         if (!o.LastUpdate) {
           o.LastUpdate = new Date();
           this.api.saveWorkflow(o).subscribe(() => {
@@ -190,11 +200,26 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         return {background: '#add8e6'};
       }
 
-      return {background: ''};
+      const date = new Date(params.data.LastUpdate);
+      const currentDate = new Date(); // Current date
+
+      // Calculate the difference in days
+      const differenceInDays = Math.floor((currentDate.getTime() - date.getTime()) / (1000 * 3600 * 24));
+
+      // Check conditions and return style accordingly
+      if (differenceInDays > 60) {
+        return {background: 'red'};
+      } else if (differenceInDays > 45) {
+        return {background: 'yellow'};
+      }
+
+      return {background: ''}; // Default background
     }
+
 
     this.gridOptions.onGridReady = async () => {
       this.calcExtData();
+      debugger;
       this.gridOptions.api?.setRowData(this.workflowItems);
       this.totals.ActiveListings = 0;
       this.totals.CompanyId = 'Totals'
@@ -226,6 +251,7 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         item.ActiveListings = tmp.ActiveListings;
         item.LastUpdate = tmp.LastUpdate;
         item.Sent45 = tmp.Sent45 ? tmp.Sent45 : false;
+        item.PartialUpdate = tmp.PartialUpdate ? tmp.PartialUpdate : false;
         item.Sent60 = tmp.Sent60 ? tmp.Sent60 : false;
         item.Completed45 = tmp.Completed45 ? tmp.Completed45 : false;
         item.Completed60 = tmp.Completed60 ? tmp.Completed60 : false;
@@ -251,6 +277,7 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
               item.LastUpdate = new Date();
               item.Sent60 = false;
               item.Sent45 = false;
+              item.PartialUpdate = false;
               item.Completed45 = false;
               item.Completed60 = false;
               item.Notes = '';
@@ -406,6 +433,13 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
       {
         headerName: 'Sent 45 Day',
         field: 'Sent45',
+        editable: true,
+        resizable: true,
+        hide: false,
+      },
+      {
+        headerName: 'Partial Update',
+        field: 'PartialUpdate',
         editable: true,
         resizable: true,
         hide: false,

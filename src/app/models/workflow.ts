@@ -9,6 +9,7 @@ export class WorkflowRow {
   LastUpdate?: Date;
   Day45Target?: Date;
   Sent45?: boolean;
+  PartialUpdate?: boolean;
   Completed45?: boolean;
   Day60Target?: Date;
   Sent60?: boolean;
