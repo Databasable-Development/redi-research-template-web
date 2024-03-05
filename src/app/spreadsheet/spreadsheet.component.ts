@@ -237,19 +237,6 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         return {background: '#add8e6'};
       }
 
-      const date = new Date(params.data.LastUpdate);
-      const currentDate = new Date(); // Current date
-
-      // Calculate the difference in days
-      const differenceInDays = Math.floor((currentDate.getTime() - date.getTime()) / (1000 * 3600 * 24));
-
-      // Check conditions and return style accordingly
-      if (differenceInDays > 60) {
-        return {background: 'red'};
-      } else if (differenceInDays > 45) {
-        return {background: 'yellow'};
-      }
-
       return {background: ''}; // Default background
     }
 
@@ -475,7 +462,25 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         hide: false,
         editable: this.isAdmin,
         filter: 'agDateColumnFilter',
-        cellRenderer: AGGridDatePickerCompponentComponent,
+        //cellRenderer: AGGridDatePickerCompponentComponent,
+        cellRenderer: (params: any) => {
+
+          const date = new Date(params.value);
+          const currentDate = new Date(); // Current date
+
+          // Calculate the difference in days
+          const differenceInDays = Math.floor((currentDate.getTime() - date.getTime()) / (1000 * 3600 * 24));
+
+
+          if (differenceInDays > 60) {
+            return `<span style="background-color: red; border-radius: 5px">${date.toDateString()}</span>`
+          } else if (differenceInDays > 45) {
+            return `<span style="background-color: yellow; border-radius: 5px">${date.toDateString()}</span>`
+          }
+
+          return `<span>${date.toDateString()}</span>`;
+
+        },
         cellEditor: AGGridDatePickerCompponentComponent,
       },
       {
@@ -549,10 +554,10 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
       {
         headerName: 'Updating Notes',
         field: 'Notes',
-        tooltipField: 'Notes',
         editable: true,
-        resizable: true,
-        hide: false,
+        cellEditorParams: {
+          maxLength: 100000
+        },
         cellEditor: 'agLargeTextCellEditor',
         cellEditorPopup: true,
         filter: 'agTextColumnFilter',
@@ -607,7 +612,7 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         cellEditor: AGGridDatePickerCompponentComponent,
       },
       {
-        headerName: 'Copywrite Content',
+        headerName: 'Copyright Content',
         field: 'CopywriteContent',
         editable: true,
         hide: false,
