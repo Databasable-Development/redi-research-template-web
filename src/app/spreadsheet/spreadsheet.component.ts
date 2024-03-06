@@ -62,6 +62,8 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
           tmp.Org = item.Organization;
           tmp.ActiveListings = item.ActiveListings
           tmp.LastUpdate = item.LastUpdate;
+          tmp.Day45Target = this.addDays(tmp.LastUpdate!, 45);
+          tmp.Day60Target = this.addDays(tmp.LastUpdate!, 60);
           tmp.Sent45 = item.Sent45 ? item.Sent45 : false;
           tmp.PartialUpdate = item.PartialUpdate ? item.PartialUpdate : false;
           tmp.Sent60 = item.Sent60 ? item.Sent60 : false;
@@ -475,7 +477,7 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
           if (differenceInDays > 60) {
             return `<span style="background-color: red; border-radius: 5px">${date.toDateString()}</span>`
           } else if (differenceInDays > 45) {
-            return `<span style="background-color: yellow; border-radius: 5px">${date.toDateString()}</span>`
+            return `<span style="background-color: yellow; border-radius: 5pxe">${date.toDateString()}</span>`
           }
 
           return `<span>${date.toDateString()}</span>`;
@@ -491,6 +493,7 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         hide: false,
         filter: 'agDateColumnFilter',
         cellRenderer: (params: any) => {
+          debugger;
           const row = params.data as WorkflowRow;
           if (row.Day45Target) {
             return row.Day45Target.toDateString()
