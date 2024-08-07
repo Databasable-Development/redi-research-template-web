@@ -32,6 +32,9 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
   updatedInLast60 = 0;
   notUpdatedInLast60 = 0;
   partialUpdatedVisible = 0;
+  red = 0;
+  yellow = 0;
+  clear = 0;
   initialState: any;
 
   constructor(private api: ApiService,
@@ -106,6 +109,9 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
   }
 
   search() {
+    this.red = 0;
+    this.yellow = 0;
+    this.clear = 0;
     this.gridOptions.api?.setQuickFilter(this.searchTxt);
   }
 
@@ -170,6 +176,15 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         const target60 = this.addDays(o.LastUpdate, 60);
         const diff60 = this.days_between(now, new Date(target60));
         const lastUpdate = this.days_between(now, new Date(o.LastUpdate));
+
+        if (lastUpdate > 60) {
+          this.red++
+        } else if (lastUpdate > 45) {
+          this.yellow++
+        } else {
+          this.clear++;
+        }
+
         if (diff60 <= 45) {
           this.dueIn45++;
           this.updatedInLast45++;
@@ -215,9 +230,13 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
 
     this.gridOptions.onFilterChanged = async () => {
       this.totals.ActiveListings = 0;
+      this.partialUpdatedVisible = 0;
       this.totals.CompanyId = 'Totals'
       this.gridOptions.api?.forEachNodeAfterFilter(o => {
         this.totals.ActiveListings! += o.data.ActiveListings!
+        if (o.data.PartialUpdate) {
+          this.partialUpdatedVisible++;
+        }
       })
       this.gridOptions.api?.setPinnedTopRowData([this.totals]);
       this.calcExtData();
@@ -246,9 +265,13 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
     this.gridOptions.onGridReady = async () => {
       this.calcExtData();
       let index = 1;
+      this.partialUpdatedVisible = 0;
       this.workflowItems.forEach(o => {
         o.id = index;
         index++;
+        if (o.PartialUpdate) {
+          this.partialUpdatedVisible++;
+        }
         this.totals.ActiveListings! += o.ActiveListings!
       });
 
@@ -464,9 +487,7 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         hide: false,
         editable: this.isAdmin,
         filter: 'agDateColumnFilter',
-        //cellRenderer: AGGridDatePickerCompponentComponent,
         cellRenderer: (params: any) => {
-
           const date = new Date(params.value);
           const currentDate = new Date(); // Current date
 
@@ -477,7 +498,7 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
           if (differenceInDays > 60) {
             return `<span style="background-color: red; border-radius: 5px">${date.toDateString()}</span>`
           } else if (differenceInDays > 45) {
-            return `<span style="background-color: yellow; border-radius: 5pxe">${date.toDateString()}</span>`
+            return `<span style="background-color: yellow; border-radius: 5px">${date.toDateString()}</span>`
           }
 
           return `<span>${date.toDateString()}</span>`;
