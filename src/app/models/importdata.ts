@@ -23,6 +23,7 @@ export class ImportData {
   public Researcher?: string;
   public LastActive?: string;
   public LastUpdate?: Date;
+  WebsiteUpdate?: boolean;
   Sent45?: boolean;
   PartialUpdate?: boolean;
   Completed45?: boolean;

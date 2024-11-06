@@ -67,6 +67,7 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
           tmp.LastUpdate = item.LastUpdate;
           tmp.Day45Target = this.addDays(tmp.LastUpdate!, 45);
           tmp.Day60Target = this.addDays(tmp.LastUpdate!, 60);
+          tmp.WebsiteUpdate = item.WebsiteUpdate ? item.WebsiteUpdate : false;
           tmp.Sent45 = item.Sent45 ? item.Sent45 : false;
           tmp.PartialUpdate = item.PartialUpdate ? item.PartialUpdate : false;
           tmp.Sent60 = item.Sent60 ? item.Sent60 : false;
@@ -319,6 +320,7 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         item.Organization = tmp.Org;
         item.ActiveListings = tmp.ActiveListings;
         item.LastUpdate = tmp.LastUpdate;
+        item.WebsiteUpdate = tmp.WebsiteUpdate ? tmp.WebsiteUpdate : false;
         item.Sent45 = tmp.Sent45 ? tmp.Sent45 : false;
         item.PartialUpdate = tmp.PartialUpdate ? tmp.PartialUpdate : false;
         item.Sent60 = tmp.Sent60 ? tmp.Sent60 : false;
@@ -345,12 +347,14 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
               const copy = JSON.parse(JSON.stringify(item));
               item.LastUpdate = new Date();
               item.Sent60 = false;
+              item.WebsiteUpdate = false;
               item.Sent45 = false;
               item.PartialUpdate = false;
               item.Completed45 = false;
               item.Completed60 = false;
               item.Notes = '';
               tmp.LastUpdate = new Date();
+              tmp.WebsiteUpdate = false;
               tmp.Sent60 = false;
               tmp.Sent45 = false;
               tmp.Completed45 = false;
@@ -465,6 +469,13 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         filter: 'agTextColumnFilter',
       },
       {
+        headerName: 'Website Update',
+        field: 'WebsiteUpdate',
+        editable: true,
+        resizable: true,
+        hide: false,
+      },
+      {
         headerName: 'Organization',
         field: 'Org',
         editable: this.isAdmin,
@@ -514,7 +525,6 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         hide: false,
         filter: 'agDateColumnFilter',
         cellRenderer: (params: any) => {
-          debugger;
           const row = params.data as WorkflowRow;
           if (row.Day45Target) {
             return row.Day45Target.toDateString()
