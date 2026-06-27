@@ -16,6 +16,15 @@ export class WorkflowRow {
   Day60Target?: Date;
   Sent60?: boolean;
   Completed60?: boolean;
+  Day75Target?: Date;
+  Sent75?: boolean;
+  Completed75?: boolean;
+  Day90Target?: Date;
+  Sent90?: boolean;
+  Completed90?: boolean;
+  Day120Target?: Date;
+  Sent120?: boolean;
+  Completed120?: boolean;
   Notes?: string;
   Brokers?: string;
   DesignatedContact?: string;

@@ -29,6 +29,12 @@ export class ImportData {
   Completed45?: boolean;
   Sent60?: boolean;
   Completed60?: boolean;
+  Sent75?: boolean;
+  Completed75?: boolean;
+  Sent90?: boolean;
+  Completed90?: boolean;
+  Sent120?: boolean;
+  Completed120?: boolean;
   Notes?: string;
   DesignatedContact?: string;
   Brokers?: string;

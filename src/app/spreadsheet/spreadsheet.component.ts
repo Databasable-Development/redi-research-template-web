@@ -67,12 +67,21 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
           tmp.LastUpdate = item.LastUpdate;
           tmp.Day45Target = this.addDays(tmp.LastUpdate!, 45);
           tmp.Day60Target = this.addDays(tmp.LastUpdate!, 60);
+          tmp.Day75Target = this.addDays(tmp.LastUpdate!, 75);
+          tmp.Day90Target = this.addDays(tmp.LastUpdate!, 90);
+          tmp.Day120Target = this.addDays(tmp.LastUpdate!, 120);
           tmp.WebsiteUpdate = item.WebsiteUpdate ? item.WebsiteUpdate : false;
           tmp.Sent45 = item.Sent45 ? item.Sent45 : false;
           tmp.PartialUpdate = item.PartialUpdate ? item.PartialUpdate : false;
           tmp.Sent60 = item.Sent60 ? item.Sent60 : false;
           tmp.Completed45 = item.Completed45 ? item.Completed45 : false;
           tmp.Completed60 = item.Completed60 ? item.Completed60 : false;
+          tmp.Sent75 = item.Sent75 ? item.Sent75 : false;
+          tmp.Completed75 = item.Completed75 ? item.Completed75 : false;
+          tmp.Sent90 = item.Sent90 ? item.Sent90 : false;
+          tmp.Completed90 = item.Completed90 ? item.Completed90 : false;
+          tmp.Sent120 = item.Sent120 ? item.Sent120 : false;
+          tmp.Completed120 = item.Completed120 ? item.Completed120 : false;
           tmp.Notes = item.Notes;
           tmp.Brokers = item.Brokers;
           tmp.DesignatedContact = item.DesignatedContact;
@@ -305,7 +314,8 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
       const col = params.column.colId;
       let archive = false;
       if (item) {
-        if ((col === 'Completed45' || col === 'Completed60') && params.newValue) {
+        if ((col === 'Completed45' || col === 'Completed60' ||
+             col === 'Completed75' || col === 'Completed90') && params.newValue) {
           archive = true;
           tmp.LastUpdate = new Date();
           item.LastUpdate = new Date();
@@ -326,6 +336,12 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         item.Sent60 = tmp.Sent60 ? tmp.Sent60 : false;
         item.Completed45 = tmp.Completed45 ? tmp.Completed45 : false;
         item.Completed60 = tmp.Completed60 ? tmp.Completed60 : false;
+        item.Sent75 = tmp.Sent75 ? tmp.Sent75 : false;
+        item.Completed75 = tmp.Completed75 ? tmp.Completed75 : false;
+        item.Sent90 = tmp.Sent90 ? tmp.Sent90 : false;
+        item.Completed90 = tmp.Completed90 ? tmp.Completed90 : false;
+        item.Sent120 = tmp.Sent120 ? tmp.Sent120 : false;
+        item.Completed120 = tmp.Completed120 ? tmp.Completed120 : false;
         item.Notes = tmp.Notes;
         item.Brokers = tmp.Brokers;
         item.DesignatedContact = tmp.DesignatedContact;
@@ -343,7 +359,7 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
           });
         } else {
           setTimeout(() => {
-            if (tmp.Completed45 || tmp.Completed60) {
+            if (tmp.Completed45 || tmp.Completed60 || tmp.Completed75 || tmp.Completed90) {
               const copy = JSON.parse(JSON.stringify(item));
               item.LastUpdate = new Date();
               item.Sent60 = false;
@@ -352,6 +368,12 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
               item.PartialUpdate = false;
               item.Completed45 = false;
               item.Completed60 = false;
+              item.Sent75 = false;
+              item.Completed75 = false;
+              item.Sent90 = false;
+              item.Completed90 = false;
+              item.Sent120 = false;
+              item.Completed120 = false;
               item.Notes = '';
               tmp.LastUpdate = new Date();
               tmp.WebsiteUpdate = false;
@@ -359,6 +381,12 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
               tmp.Sent45 = false;
               tmp.Completed45 = false;
               tmp.Completed60 = false;
+              tmp.Sent75 = false;
+              tmp.Completed75 = false;
+              tmp.Sent90 = false;
+              tmp.Completed90 = false;
+              tmp.Sent120 = false;
+              tmp.Completed120 = false;
               tmp.Notes = '';
               forkJoin([
                 this.api.saveWorkflow(item),
@@ -584,6 +612,96 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         editable: true,
         hide: false,
         filter: 'agNumberColumnFilter',
+      },
+      {
+        headerName: '75 Day Target',
+        field: 'Day75Target',
+        editable: false,
+        resizable: true,
+        hide: false,
+        filter: 'agDateColumnFilter',
+        cellRenderer: (params: any) => {
+          const row = params.data as WorkflowRow;
+          if (row.Day75Target) {
+            return row.Day75Target.toDateString()
+          }
+
+          return '';
+        }
+      },
+      {
+        headerName: 'Sent 75 Day',
+        field: 'Sent75',
+        editable: true,
+        resizable: true,
+        hide: false,
+      },
+      {
+        headerName: 'Completed 75 Day',
+        field: 'Completed75',
+        editable: true,
+        resizable: true,
+        hide: false,
+      },
+      {
+        headerName: '90 Day Target',
+        field: 'Day90Target',
+        editable: false,
+        resizable: true,
+        hide: false,
+        filter: 'agDateColumnFilter',
+        cellRenderer: (params: any) => {
+          const row = params.data as WorkflowRow;
+          if (row.Day90Target) {
+            return row.Day90Target.toDateString()
+          }
+
+          return '';
+        }
+      },
+      {
+        headerName: 'Sent 90 Day',
+        field: 'Sent90',
+        editable: true,
+        resizable: true,
+        hide: false,
+      },
+      {
+        headerName: 'Completed 90 Day',
+        field: 'Completed90',
+        editable: true,
+        resizable: true,
+        hide: false,
+      },
+      {
+        headerName: '120 Day Target',
+        field: 'Day120Target',
+        editable: false,
+        resizable: true,
+        hide: false,
+        filter: 'agDateColumnFilter',
+        cellRenderer: (params: any) => {
+          const row = params.data as WorkflowRow;
+          if (row.Day120Target) {
+            return row.Day120Target.toDateString()
+          }
+
+          return '';
+        }
+      },
+      {
+        headerName: 'Sent 120 Day',
+        field: 'Sent120',
+        editable: true,
+        resizable: true,
+        hide: false,
+      },
+      {
+        headerName: 'Completed 120 Day',
+        field: 'Completed120',
+        editable: true,
+        resizable: true,
+        hide: false,
       },
       {
         headerName: 'Updating Notes',

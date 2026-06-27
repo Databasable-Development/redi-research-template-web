@@ -24,6 +24,9 @@ export class AGGridDatePickerCompponentComponent implements ICellRendererAngular
       if (params.colDef.field === 'LastUpdate') {
         this.row.Day45Target = this.addDays(this.dateVal, 45);
         this.row.Day60Target = this.addDays(this.dateVal, 60);
+        this.row.Day75Target = this.addDays(this.dateVal, 75);
+        this.row.Day90Target = this.addDays(this.dateVal, 90);
+        this.row.Day120Target = this.addDays(this.dateVal, 120);
       }
     }
   }
@@ -39,6 +42,9 @@ export class AGGridDatePickerCompponentComponent implements ICellRendererAngular
       this.row!.LastUpdate = this.dateVal;
       this.row!.Day45Target = this.addDays(this.dateVal, 45);
       this.row!.Day60Target = this.addDays(this.dateVal, 60);
+      this.row!.Day75Target = this.addDays(this.dateVal, 75);
+      this.row!.Day90Target = this.addDays(this.dateVal, 90);
+      this.row!.Day120Target = this.addDays(this.dateVal, 120);
     }
 
     this.api?.refreshCells()

@@ -54,6 +54,12 @@ export class HistoryComponent implements OnInit, OnDestroy {
           tmp.Sent60 = item.Sent60 ? item.Sent60 : false;
           tmp.Completed45 = item.Completed45 ? item.Completed45 : false;
           tmp.Completed60 = item.Completed60 ? item.Completed60 : false;
+          tmp.Sent75 = item.Sent75 ? item.Sent75 : false;
+          tmp.Completed75 = item.Completed75 ? item.Completed75 : false;
+          tmp.Sent90 = item.Sent90 ? item.Sent90 : false;
+          tmp.Completed90 = item.Completed90 ? item.Completed90 : false;
+          tmp.Sent120 = item.Sent120 ? item.Sent120 : false;
+          tmp.Completed120 = item.Completed120 ? item.Completed120 : false;
           tmp.Notes = item.Notes;
           tmp.Brokers = item.Brokers;
           tmp.DesignatedContact = item.DesignatedContact;
@@ -235,6 +241,78 @@ export class HistoryComponent implements OnInit, OnDestroy {
         field: 'Completed60',
         editable: false,
         filter: 'agNumberColumnFilter',
+      },
+      {
+        headerName: '75 Day Target',
+        field: 'Day75Target',
+        editable: false,
+        filter: 'agDateColumnFilter',
+        cellRenderer: (params: any) => {
+          const row = params.data as WorkflowRow;
+          if (row.Day75Target) {
+            return row.Day75Target.toDateString()
+          }
+
+          return '';
+        }
+      },
+      {
+        headerName: 'Sent 75 Day',
+        field: 'Sent75',
+        editable: false,
+      },
+      {
+        headerName: 'Completed 75 Day',
+        field: 'Completed75',
+        editable: false,
+      },
+      {
+        headerName: '90 Day Target',
+        field: 'Day90Target',
+        editable: false,
+        filter: 'agDateColumnFilter',
+        cellRenderer: (params: any) => {
+          const row = params.data as WorkflowRow;
+          if (row.Day90Target) {
+            return row.Day90Target.toDateString()
+          }
+
+          return '';
+        }
+      },
+      {
+        headerName: 'Sent 90 Day',
+        field: 'Sent90',
+        editable: false,
+      },
+      {
+        headerName: 'Completed 90 Day',
+        field: 'Completed90',
+        editable: false,
+      },
+      {
+        headerName: '120 Day Target',
+        field: 'Day120Target',
+        editable: false,
+        filter: 'agDateColumnFilter',
+        cellRenderer: (params: any) => {
+          const row = params.data as WorkflowRow;
+          if (row.Day120Target) {
+            return row.Day120Target.toDateString()
+          }
+
+          return '';
+        }
+      },
+      {
+        headerName: 'Sent 120 Day',
+        field: 'Sent120',
+        editable: false,
+      },
+      {
+        headerName: 'Completed 120 Day',
+        field: 'Completed120',
+        editable: false,
       },
       {
         headerName: 'Updating Notes',
