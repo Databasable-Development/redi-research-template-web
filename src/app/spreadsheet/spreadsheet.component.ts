@@ -146,6 +146,9 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
     this.updatedInLast60 = 0;
     this.notUpdatedInLast60 = 0;
     this.partialUpdatedVisible = 0;
+    this.red = 0;
+    this.yellow = 0;
+    this.clear = 0;
     const now = new Date();
     if (this.gridOptions.api?.isAnyFilterPresent()) {
       this.gridOptions.api?.forEachNodeAfterFilter(o => {
@@ -167,6 +170,11 @@ export class SpreadsheetComponent implements OnInit, OnDestroy {
         }
         if (lastUpdate > 60) {
           this.notUpdatedInLast60++;
+          this.red++;
+        } else if (lastUpdate > 45) {
+          this.yellow++;
+        } else {
+          this.clear++;
         }
       });
     } else {
